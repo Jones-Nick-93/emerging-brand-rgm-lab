@@ -6,8 +6,11 @@ An interactive promotion economics calculator for emerging grocery brands.
 Enter shelf price, unit cost, baseline volume, inventory, vendor funding,
 activation spend, and displaced sales. The app shows the **causal unit lift
 required to break even**, contribution under downside/planning/upside scenarios,
-and the maximum discount that breaks even at a supplied lift. It also outlines
-a store pilot that could measure lift.
+and the maximum discount that breaks even at a supplied lift. A second tab
+demonstrates a **randomized matched-store pilot** on generated data: a contract
+gate, store-pair difference-in-differences, empirical-Bayes pooling of noisy
+pair results, a pair-bootstrap interval, and a contribution stress test.
+It also outlines a real store pilot that could measure lift.
 
 **Try it locally**
 
@@ -22,12 +25,28 @@ Run the deterministic calculation tests:
 python -m unittest -v
 ```
 
+Generate the fixed synthetic pilot and machine-readable audit artifacts:
+
+```bash
+python pilot_cli.py demo
+```
+
+For a genuine local pilot, follow [the store-week data contract](docs/PILOT_DATA_CONTRACT.md)
+and run `python pilot_cli.py analyze path/to/local_pilot.csv --output-dir outputs/local_run`.
+The local command does not upload data. Its gate checks structure and execution
+but cannot prove that random assignment really occurred; preserve the
+original assignment log. The public app accepts no CSV uploads.
+The [model card](docs/MODEL_CARD.md) records the estimand, synthetic checks,
+uncertainty, and limits.
+
 The starting numbers are invented. This app does not estimate causal
-elasticity or promotion lift from observational scanner data. All lift values
-are user assumptions unless the user has run a controlled pilot; selecting
-"Controlled pilot" is a self declaration, not verification by the app. The
-decision status always requires human review. Do not enter confidential
-commercial inputs into a public deployment.
+elasticity or promotion lift from observational scanner data. The pilot tab
+uses invented randomized assignments and outcomes; its recovered effect is
+**method demonstration, not validated real-world performance**. In the
+economics tab, all lift values are user assumptions unless the user has run a
+controlled pilot; selecting "Controlled pilot" is a self declaration, not
+verification by the app. Every status requires human review. Do not enter
+confidential commercial inputs into a public deployment.
 
 The accompanying research project examined historical [Dominick's grocery
 scanner data](https://www.chicagobooth.edu/research/kilts/research-data/dominicks)
