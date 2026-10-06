@@ -1,5 +1,7 @@
 # Emerging Brand RGM Lab
 
+**Live app:** https://emerging-brand-rgm-lab.streamlit.app/
+
 An interactive promotion economics calculator for emerging grocery brands.
 Enter shelf price, unit cost, baseline volume, inventory, vendor funding,
 activation spend, and displaced sales. The app shows the **causal unit lift
