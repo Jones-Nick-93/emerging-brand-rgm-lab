@@ -74,6 +74,12 @@ Pair-specific values are not identified individual-store effects. Costs,
 vendor funding, substitution, and inventory used by the decision calculator
 are separate inputs; they are not learned by the pilot estimator.
 
+The separate [pilot sizing illustration](PILOT_DESIGN.md) uses pre-period
+variation and a user-supplied effect-heterogeneity assumption. Its power curve
+is a normal approximation conditional on an assumed true effect; it is not a
+prediction that any real promotion will succeed. No real retailer baseline or
+experimental power calibration has been evaluated.
+
 ## Monitoring, fallback, retirement
 
 For any real pilot, archive the assignment log, freeze eligible stores and

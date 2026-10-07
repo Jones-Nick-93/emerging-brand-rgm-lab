@@ -11,6 +11,9 @@ demonstrates a **randomized matched-store pilot** on generated data: a contract
 gate, store-pair difference-in-differences, empirical-Bayes pooling of noisy
 pair results, a pair-bootstrap interval, and a contribution stress test.
 It also outlines a real store pilot that could measure lift.
+An experiment-planning tab connects the contribution break-even hurdle to an
+illustrative matched-store pair count and power curve, using only synthetic
+pre-period sales noise. See [the sizing method](docs/PILOT_DESIGN.md).
 
 **Try it locally**
 
@@ -38,6 +41,11 @@ but cannot prove that random assignment really occurred; preserve the
 original assignment log. The public app accepts no CSV uploads.
 The [model card](docs/MODEL_CARD.md) records the estimand, synthetic checks,
 uncertainty, and limits.
+The [pilot design note](docs/PILOT_DESIGN.md) records the sample-size
+approximation and assumptions.
+Run `python pilot_design_cli.py demo` to generate an auditable pre-period
+fixture and sizing JSON. A local pre-period-only CSV can be analyzed with
+`python pilot_design_cli.py plan baseline.csv --break-even-lift 0.225 --target-lift 0.30`.
 
 The starting numbers are invented. This app does not estimate causal
 elasticity or promotion lift from observational scanner data. The pilot tab

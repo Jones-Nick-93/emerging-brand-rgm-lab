@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from pilot_core import analyze_pilot, rows_to_csv, synthetic_pilot, transfer_blockers
+from pilot_design import plan_pilot
 from scenario_core import (PromotionInputs, SYNTHETIC_EXAMPLE,
                            break_even_lift, decision_label, evaluate,
                            maximum_break_even_discount)
@@ -210,6 +211,53 @@ with pilot_tab:
 
 with experiment_tab:
     st.markdown("### Turn the assumption into evidence")
+    st.markdown("#### Size a matched-store pilot against the contribution hurdle")
+    st.warning("**Synthetic planning illustration.** Noise is measured from the generated stores' pre-promotion weeks. It is not a sample-size promise for a real retailer.")
+    design_a, design_b, design_c = st.columns(3)
+    with design_a:
+        design_target_pct = st.number_input("Lift to detect (%)", min_value=-100,
+                                            max_value=500, value=30, step=5)
+        design_heterogeneity_pct = st.number_input(
+            "Assumed store-pair effect variation (percentage points)",
+            min_value=0, max_value=100, value=8, step=1)
+    with design_b:
+        design_pre_weeks = st.number_input("Planned pre-promotion weeks", min_value=4,
+                                           max_value=52, value=6)
+        design_post_weeks = st.number_input("Planned promotion weeks", min_value=4,
+                                            max_value=52, value=6)
+    with design_c:
+        design_power_pct = st.slider("Chance of clearing hurdle if target lift is real (%)",
+                                     min_value=55, max_value=95, value=80, step=5)
+        st.metric("Contribution break-even hurdle",
+                  "Not feasible" if threshold is None else f"{threshold:.1%}")
+    if threshold is None:
+        st.error("This promotion cannot break even with the entered inventory and unit economics. Redesign it before sizing a pilot.")
+    else:
+        design = plan_pilot(
+            pilot_rows, break_even_lift=threshold,
+            target_lift=design_target_pct / 100,
+            planned_pre_weeks=int(design_pre_weeks),
+            planned_post_weeks=int(design_post_weeks),
+            heterogeneity_sd=design_heterogeneity_pct / 100,
+            target_power=design_power_pct / 100,
+        )
+        if design["required_pairs"] is None:
+            st.warning("No design within 200 matched pairs reaches the target chance under these assumptions. Increase the expected effect, change the economics, or revisit feasibility.")
+        else:
+            st.metric("Illustrative matched pairs needed",
+                      design["required_pairs"],
+                      help="One promoted and one control store per pair. This count uses a one-sided 5% test and a normal approximation.")
+        st.caption(f"At {design['source_pairs']} pairs, the modeled chance of clearing the hurdle is {design['power_at_source_pairs']:.0%}. This probability assumes the entered lift is the true average effect; it is not the probability the promotion will work.")
+        curve = pd.DataFrame(design["power_curve"])
+        st.line_chart(curve, x="pairs", y="probability_clearing_hurdle",
+                      width="stretch")
+        st.caption("The calculation uses only pre-period paired sales variation; post-promotion outcomes do not set the sample size. It assumes independent stores and weeks, stable noise, no spillovers, and the entered effect variation. A real pilot needs its own baseline data and a reviewed design.")
+        st.download_button("Download pilot sizing assumptions (JSON)",
+                           json.dumps(design, indent=2),
+                           file_name="synthetic_pilot_design.json",
+                           mime="application/json")
+
+    st.markdown("#### Execution checklist")
     st.markdown("""
     1. **Choose the decision first.** Record the planned discount, funding,
        activation spend, eligible stores, and the contribution-profit hurdle.
@@ -225,7 +273,7 @@ with experiment_tab:
        then run the scenario lab with the pilot estimate. Do not choose a
        winner from a point estimate alone.
     """)
-    st.info("The pilot tab demonstrates estimation on generated randomized data. It does not infer causal lift from aggregate scanner history or calculate a sample size for a real pilot.")
+    st.info("The pilot tab demonstrates estimation on generated randomized data. The sizing tool is an illustrative normal approximation; a real pilot requires retailer-specific pre-period data and a power review.")
 
 with evidence_tab:
     st.markdown("### Where RGM is possible today")
